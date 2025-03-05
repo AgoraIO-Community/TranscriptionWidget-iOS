@@ -61,7 +61,8 @@ class MainVC: UIViewController {
         if !useReplayTest {
             rtcManager.joinChannel(channelId: config.channelId,
                                    uid: config.uid,
-                                   isHost: config.isHost)
+                                   isHost: config.isHost,
+                                   token: nil)
             SVProgressHUD.show(withStatus: "joining channel...")
         }
     }

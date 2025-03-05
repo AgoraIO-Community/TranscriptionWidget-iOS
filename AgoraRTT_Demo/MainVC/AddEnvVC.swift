@@ -19,6 +19,7 @@ class AddEnvVC: UIViewController {
     private let testPortTextField = UITextField()
     private let appIdTextField = UITextField()
     private let authTextField = UITextField()
+    private let apiVersionTextField = UITextField()
     private let comfirmButton = UIButton()
     private let useFinalTagAsParagraphDistinctionSwitch = UISwitch()
     private let useFinalTagAsParagraphDistinctionLabel = UILabel()
@@ -39,17 +40,20 @@ class AddEnvVC: UIViewController {
         testPortTextField.borderStyle = .roundedRect
         appIdTextField.borderStyle = .roundedRect
         authTextField.borderStyle = .roundedRect
+        apiVersionTextField.borderStyle = .roundedRect
         nameTextField.placeholder = "name"
         serverUrlTextField.placeholder = "http://114.236.137.80:16000/v1"
         testIpTextField.placeholder = "testIp"
         testPortTextField.placeholder = "testPort"
         appIdTextField.placeholder = "appId"
         authTextField.placeholder = "auth"
+        apiVersionTextField.placeholder = "api version: 6/7"
+        apiVersionTextField.keyboardType = .numberPad
         useFinalTagAsParagraphDistinctionLabel.text = "兼容 5.x(用isFinal 断句)"
         useFinalTagAsParagraphDistinctionLabel.textColor = .blue
         testPortTextField.keyboardType = .numberPad
         view.backgroundColor = .white
-        let stackView = UIStackView(arrangedSubviews: [nameTextField, serverUrlTextField, testIpTextField, testPortTextField, appIdTextField, authTextField, comfirmButton, useFinalTagAsParagraphDistinctionSwitch, useFinalTagAsParagraphDistinctionLabel])
+        let stackView = UIStackView(arrangedSubviews: [nameTextField, serverUrlTextField, testIpTextField, testPortTextField, appIdTextField, authTextField, apiVersionTextField, comfirmButton, useFinalTagAsParagraphDistinctionSwitch, useFinalTagAsParagraphDistinctionLabel])
         stackView.axis = .vertical
         stackView.spacing = 10
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -76,9 +80,11 @@ class AddEnvVC: UIViewController {
             SVProgressHUD.showError(withStatus: "appId不能为空")
             return
         }
+        let apiVerionStr = apiVersionTextField.text ?? "0"
         let useFinalTagAsParagraphDistinction = useFinalTagAsParagraphDistinctionSwitch.isOn
         let serverEnv = ServerEnv(name: name,
                                   serverUrlString: serverUrl,
+                                  apiVersion: APIVersion(rawValue: Float(apiVerionStr) ?? 0) ?? .api6_x,
                                   testIp: testIpTextField.text ?? "",
                                   testPort: UInt(testPortTextField.text ?? "") ?? 0,
                                   appId: appId,

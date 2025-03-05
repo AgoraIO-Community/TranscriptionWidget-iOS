@@ -49,13 +49,13 @@ extension ProtobufDeserializer.DataStreamMessage {
     
     var debug_transcriptBeautyString: String {
         return """
-        {"text" : \(words.first?.text ?? "nil"), starttime:\(starttime) "startMs" : \(words.first?.startMs ?? 0), "durationMs" : \(words.first?.durationMs ?? 0), "isFinal" : \(words.first?.isFinal ?? false), "sentenceEndIndex" : \(sentenceEndIndex)} wordsArray_Count:\(wordsArray_Count) textTs:\(textTs) endOfSegment:\(endOfSegment) uid:\(uid)
+        {"text" : \(words.first?.text ?? "nil"), "starttime":\(starttime), "startMs" : \(words.first?.startMs ?? 0), "durationMs" : \(words.first?.durationMs ?? 0), "isFinal" : \(words.first?.isFinal ?? false), "sentenceEndIndex" : \(sentenceEndIndex) "wordsArray_Count":\(wordsArray_Count), "textTs":\(textTs), "endOfSegment":\(endOfSegment), "uid":\(uid)}
 """
     }
     
     var debug_translateBeautyString: String {
         return """
-        {"text" : \(trans.map({ $0.jsonString })), lang" : \(trans.first?.lang ?? "nil"),"isFinal" : \(trans.first?.isFinal ?? false), "sentenceEndIndex" : \(sentenceEndIndex)}  textTs:\(textTs) textTs:\(textTs) endOfSegment:\(endOfSegment)
+        {"text" : \(trans.map({ $0.jsonString })), "lang" : \(trans.first?.lang ?? "nil"),"isFinal" : \(trans.first?.isFinal ?? false), "sentenceEndIndex" : \(sentenceEndIndex), "textTs":\(textTs), "textTs":\(textTs) "endOfSegment":\(endOfSegment)}
 """
     }
     

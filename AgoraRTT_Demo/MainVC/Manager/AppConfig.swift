@@ -51,6 +51,7 @@ class AppConfig {
         let serverEnv = self.serverEnv
         let dict = ["name": serverEnv!.name,
                     "serverUrlString": serverEnv!.serverUrlString,
+                    "apiVersion": serverEnv!.apiVersion.rawValue,
                     "testIp": serverEnv!.testIp,
                     "testPort": serverEnv!.testPort,
                     "appId": serverEnv!.appId,
@@ -63,6 +64,7 @@ class AppConfig {
         if let dict = UserDefaults.standard.dictionary(forKey: "serverEnv") {
             let name = dict["name"] as! String
             let serverUrlString = dict["serverUrlString"] as! String
+            let apiVersion = dict["apiVersion"] as? Float
             let testIp = dict["testIp"] as! String
             let testPort = dict["testPort"] as! UInt
             let appId = dict["appId"] as! String
@@ -70,6 +72,7 @@ class AppConfig {
             let useFinalTagAsParagraphDistinction = (dict["useFinalTagAsParagraphDistinction"] as? Bool) ?? false
             serverEnv = ServerEnv(name: name,
                                   serverUrlString: serverUrlString,
+                                  apiVersion: APIVersion(rawValue: apiVersion ?? 0) ?? .api6_x,
                                   testIp: testIp,
                                   testPort: testPort,
                                   appId: appId,
@@ -83,8 +86,14 @@ class AppConfig {
     }
 }
 
+enum APIVersion: Float, Codable {
+    case api6_x = 6
+    case api7_x = 7
+}
+
 class ServerEnv: Codable {
     var name: String
+    var apiVersion: APIVersion
     var serverUrlString: String
     var testIp: String
     var testPort: UInt
@@ -94,6 +103,7 @@ class ServerEnv: Codable {
     
     init(name: String,
          serverUrlString: String,
+         apiVersion: APIVersion,
          testIp: String,
          testPort: UInt,
          appId: String,
@@ -101,6 +111,7 @@ class ServerEnv: Codable {
          useFinalTagAsParagraphDistinction: Bool) {
         self.name = name
         self.serverUrlString = serverUrlString
+        self.apiVersion = apiVersion
         self.testIp = testIp
         self.testPort = testPort
         self.appId = appId
@@ -111,6 +122,7 @@ class ServerEnv: Codable {
     func copyThis() -> ServerEnv {
         return ServerEnv(name: name,
                          serverUrlString: serverUrlString,
+                         apiVersion: apiVersion,
                          testIp: testIp,
                          testPort: testPort,
                          appId: appId,

@@ -27,6 +27,7 @@ class RtcManager: NSObject {
     }
     
     func initEngine() {
+        Log.info(text: "initEngine appid \(AppConfig.share.serverEnv.appId)", tag: logTag)
         let config = AgoraRtcEngineConfig()
         config.appId = AppConfig.share.serverEnv.appId
         agoraKit = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
@@ -51,13 +52,13 @@ class RtcManager: NSObject {
         self.agoraKit.setParameters("{\"rtc.debug.enable\": true}")
     }
     
-    func joinChannel(channelId: String, uid: UInt, isHost: Bool) {
+    func joinChannel(channelId: String, uid: UInt, isHost: Bool, token: String?) {
         agoraKit.enableAudioVolumeIndication(50, smooth: 3, reportVad: true)
         let option = AgoraRtcChannelMediaOptions()
         option.clientRoleType = isHost ? .broadcaster : .audience
         agoraKit.enableAudio()
         agoraKit.setClientRole(isHost ? .broadcaster : .audience)
-        let ret = agoraKit.joinChannel(byToken: nil,
+        let ret = agoraKit.joinChannel(byToken: token,
                                        channelId: channelId,
                                        uid: uid,
                                        mediaOptions: option)

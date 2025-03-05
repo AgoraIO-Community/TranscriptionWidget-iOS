@@ -8,8 +8,21 @@
 import Foundation
 import URLRequest_cURL
 
-class HttpClient: NSObject {
-    static let logTag = "HttpClient"
+struct TestServerInfo {
+    let ip: String
+    let port: UInt
+}
+
+struct RtcConfig {
+    let channelName: String
+    let subBotUid: String
+    let pubBotUid: String
+}
+
+// MARK: - HttpClient6x
+class HttpClient6_x: NSObject {
+    static let logTag = "HttpClient6.x"
+    
     typealias AcquireCompletedBlock = (_ token: String?, _ errorMsg: String?) -> Void
     
     static func acquire(appId: String,
@@ -167,16 +180,105 @@ class HttpClient: NSObject {
         task.resume()
     }
 }
-
-extension HttpClient {
-    struct TestServerInfo {
-        let ip: String
-        let port: UInt
+// MARK: - HttpClient7_x
+class HttpClient7_x: NSObject {
+    static let logTag = "HttpClient7.x"
+    
+    typealias JoinCompletedBlock = (_ agentId: String?, _ errorMsg: String?) -> Void
+    static func join(appId: String,
+                     auth: String?,
+                     baseUrl: String,
+                     targetTranscribeLanguages: [String],
+                     sourceTranslateLanguage: String,
+                     targetTranslateLanguages: [String],
+                     rtcConfig: RtcConfig,
+                     testServerInfo: TestServerInfo?,
+                     timeoutInterval: TimeInterval = 60,
+                     completed: @escaping JoinCompletedBlock) {
+        let urlString = baseUrl + "/api/voice-ai-agent/v1/projects/" + appId + "/join"
+        let url = URL(string: urlString)!
+        
+        let bodyDict: [String: Any] = [
+            /// 需要识别的转录语种，最多支持两种语言
+            "languages": targetTranscribeLanguages,
+            "translateConfig": [
+                "languages": [
+                    [
+                        "target": targetTranslateLanguages,
+                        "source": sourceTranslateLanguage
+                    ] as [String : Any]
+                ]
+            ],
+            "maxIdleTime": 60,
+            "devicePlatform": "iOS",
+            "rtcConfig": [
+                "channelName": rtcConfig.channelName,
+                "subBotUid": rtcConfig.subBotUid,
+                "pubBotUid": rtcConfig.pubBotUid
+            ]
+        ]
+        let jsonBody = try! JSONSerialization.data(withJSONObject: bodyDict, options: [])
+        
+        var request = URLRequest(url: url)
+        request.httpBody = jsonBody
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let auth = auth {
+            request.setValue(auth, forHTTPHeaderField: "Authorization")
+        }
+        request.timeoutInterval = timeoutInterval
+        Log.debug(text: "\(request.cURL)", tag: "curl")
+        
+        let session = URLSession.shared
+        let task = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                Log.error(error: "Failed to join: \(error.localizedDescription)", tag: logTag)
+                completed(nil, error.localizedDescription)
+            } else if let data = data {
+                Log.info(text: "Response to join: \(String(data: data, encoding: .utf8) ?? "")", tag: "curl")
+                let respDict = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+                
+                if let status = respDict["status"] as? String,
+                   status == "RUNNING",
+                   let agentId = respDict["taskId"] as? String {
+                    completed(agentId, nil)
+                }
+                else {
+                    let jsonString = String(data: data, encoding: .utf8)!
+                    Log.errorText(text: "join fail: \(jsonString)")
+                    completed(nil, jsonString)
+                }
+            }
+        }
+        task.resume()
     }
     
-    struct RtcConfig {
-        let channelName: String
-        let subBotUid: String
-        let pubBotUid: String
+    typealias StopCompletedBlock = (_ errorMsg: String?) -> Void
+    static func leave(appId: String,
+                      auth: String?,
+                      baseUrl: String,
+                      agentId: String,
+                      timeoutInterval: TimeInterval = 60,
+                      completed: @escaping StopCompletedBlock) {
+        let urlString = baseUrl + "/api/voice-ai-agent/v1/projects/" + appId + "/agents/\(agentId)/leave"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = timeoutInterval
+        if let auth = auth {
+            request.setValue(auth, forHTTPHeaderField: "Authorization")
+        }
+        let session = URLSession.shared
+        let task = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                Log.error(error: "Failed to stop: \(error.localizedDescription)", tag: logTag)
+                completed(error.localizedDescription)
+            } else if let data = data {
+                Log.info(text: "Response to leave: \(String(data: data, encoding: .utf8) ?? "")", tag: "curl")
+                completed(nil)
+            }
+        }
+        task.resume()
     }
 }
