@@ -201,6 +201,7 @@ class HttpClient7_x: NSObject {
         let bodyDict: [String: Any] = [
             /// 需要识别的转录语种，最多支持两种语言
             "languages": targetTranscribeLanguages,
+            "name": "agora-test",
             "translateConfig": [
                 "languages": [
                     [
@@ -240,7 +241,7 @@ class HttpClient7_x: NSObject {
                 
                 if let status = respDict["status"] as? String,
                    status == "RUNNING",
-                   let agentId = respDict["taskId"] as? String {
+                   let agentId = respDict["agent_id"] as? String {
                     completed(agentId, nil)
                 }
                 else {
