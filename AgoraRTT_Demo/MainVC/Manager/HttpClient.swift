@@ -195,7 +195,7 @@ class HttpClient7_x: NSObject {
                      testServerInfo: TestServerInfo?,
                      timeoutInterval: TimeInterval = 60,
                      completed: @escaping JoinCompletedBlock) {
-        let urlString = baseUrl + "/api/voice-ai-agent/v1/projects/" + appId + "/join"
+        let urlString = baseUrl + "/api/speech-to-text/v1/projects/" + appId + "/join"
         let url = URL(string: urlString)!
         
         let bodyDict: [String: Any] = [
@@ -261,7 +261,7 @@ class HttpClient7_x: NSObject {
                       agentId: String,
                       timeoutInterval: TimeInterval = 60,
                       completed: @escaping StopCompletedBlock) {
-        let urlString = baseUrl + "/api/voice-ai-agent/v1/projects/" + appId + "/agents/\(agentId)/leave"
+        let urlString = baseUrl + "/api/speech-to-text/v1/projects/" + appId + "/agents/\(agentId)/leave"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
