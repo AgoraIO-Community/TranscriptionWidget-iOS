@@ -47,7 +47,7 @@ class EntryView: UIView {
     
     let graphIdTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Enter Graph ID"
+        textField.placeholder = "Enter Graph ID (optional)"
         textField.borderStyle = .roundedRect
         return textField
     }()
