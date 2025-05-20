@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import URLRequest_cURL
+import AgoraTranscriptSubtitle
 
 struct TestServerInfo {
     let ip: String

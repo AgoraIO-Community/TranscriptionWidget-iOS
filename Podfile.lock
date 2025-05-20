@@ -39,13 +39,10 @@ PODS:
   - AgoraTranscriptSubtitle/Tests (1.0.0):
     - AgoraComponetLog (~> 0.0.3)
     - Protobuf (= 3.28.2)
-  - GzipSwift (5.1.1)
   - Protobuf (3.28.2)
   - SVProgressHUD (2.3.1):
     - SVProgressHUD/Core (= 2.3.1)
   - SVProgressHUD/Core (2.3.1)
-  - URLRequest-cURL (0.0.3):
-    - GzipSwift
 
 DEPENDENCIES:
   - AgoraComponetLog (~> 0.0.3)
@@ -54,16 +51,13 @@ DEPENDENCIES:
   - AgoraTranscriptSubtitle/Tests (from `./AgoraTranscriptSubtitle.podspec`)
   - Protobuf (= 3.28.2)
   - SVProgressHUD
-  - URLRequest-cURL
 
 SPEC REPOS:
   trunk:
     - AgoraComponetLog
     - AgoraRtcEngine_iOS
-    - GzipSwift
     - Protobuf
     - SVProgressHUD
-    - URLRequest-cURL
 
 EXTERNAL SOURCES:
   AgoraTranscriptSubtitle:
@@ -73,11 +67,9 @@ SPEC CHECKSUMS:
   AgoraComponetLog: ba4ef4aebf89e52e99886fbd7a68b21748add78a
   AgoraRtcEngine_iOS: ac647332ad8f86d79cf810601c9e62b28c3a4de0
   AgoraTranscriptSubtitle: c8969a43bcb81471d2c3d18cdf61b7b208889993
-  GzipSwift: 893f3e48e597a1a4f62fafcb6514220fcf8287fa
   Protobuf: 28c89b24435762f60244e691544ed80f50d82701
   SVProgressHUD: 4837c74bdfe2e51e8821c397825996a8d7de6e22
-  URLRequest-cURL: b159525e416ead3133ae60450660b8c82d2f2aa0
 
-PODFILE CHECKSUM: 51851694ff577d2e8aaacc94bb1d1b15b25e023d
+PODFILE CHECKSUM: 8727ab4896f363eb01d63e63bd4a3add22a71f10
 
 COCOAPODS: 1.16.2

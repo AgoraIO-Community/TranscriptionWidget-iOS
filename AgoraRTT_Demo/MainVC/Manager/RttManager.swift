@@ -138,3 +138,31 @@ class RttManager: NSObject {
         }
     }
 }
+
+extension URLRequest {
+    var cURL: String {
+        var components = ["curl -v"]
+
+        if let httpMethod = self.httpMethod {
+            components.append("-X \(httpMethod)")
+        }
+
+        if let headers = self.allHTTPHeaderFields {
+            for (field, value) in headers {
+                components.append("-H \"\(field): \(value)\"")
+            }
+        }
+
+        if let httpBody = self.httpBody,
+           let bodyString = String(data: httpBody, encoding: .utf8) {
+            components.append("-d \"\(bodyString)\"")
+        }
+
+        if let url = self.url {
+            components.append("\"\(url.absoluteString)\"")
+        }
+
+        return components.joined(separator: " \\\n")
+    }
+}
+
