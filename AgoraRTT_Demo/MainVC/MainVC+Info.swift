@@ -12,5 +12,6 @@ extension MainVC {
         let isHost: Bool
         let uid: UInt
         let channelId: String
+        let graphId: String
     }
 }

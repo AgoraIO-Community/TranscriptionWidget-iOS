@@ -188,6 +188,7 @@ class HttpClient7_x: NSObject {
     static func join(appId: String,
                      auth: String?,
                      baseUrl: String,
+                     graphId: String,
                      targetTranscribeLanguages: [String],
                      sourceTranslateLanguage: String,
                      targetTranslateLanguages: [String],
@@ -198,7 +199,8 @@ class HttpClient7_x: NSObject {
         let urlString = baseUrl + "/api/speech-to-text/v1/projects/" + appId + "/join"
         let url = URL(string: urlString)!
         
-        let bodyDict: [String: Any] = [
+        let bodyDict: [String: Any?] = [
+            "graph_id": graphId.isEmpty ? nil : graphId,
             /// 需要识别的转录语种，最多支持两种语言
             "languages": targetTranscribeLanguages,
             "name": "agora-test",

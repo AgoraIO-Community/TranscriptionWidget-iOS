@@ -17,7 +17,7 @@ class RttManager: NSObject {
     private let logTag = "RttManager"
     weak var delegate: RttManagerDelegate?
     
-    func requestStartRttRecognize(channelId: String) {
+    func requestStartRttRecognize(channelId: String, graphId: String) {
         Log.debug(text: "current env: \(AppConfig.share.serverEnv.name)", tag: logTag)
         if AppConfig.share.serverEnv.apiVersion == .api7_x {
             let testInfo: TestServerInfo? = AppConfig.share.serverEnv.testIp.isEmpty ? nil : TestServerInfo(ip: AppConfig.share.serverEnv.testIp, port: UInt(AppConfig.share.serverEnv.testPort))
@@ -30,6 +30,7 @@ class RttManager: NSObject {
             HttpClient7_x.join(appId: AppConfig.share.serverEnv.appId,
                                 auth: AppConfig.share.serverEnv.auth,
                                 baseUrl: AppConfig.share.serverEnv.serverUrlString,
+                                graphId: graphId,
                                 targetTranscribeLanguages: targetTranscribeLanguages,
                                 sourceTranslateLanguage: sourceTranslateLanguage,
                                 targetTranslateLanguages: targetTranslateLanguages,

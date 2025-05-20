@@ -8,12 +8,13 @@
 import UIKit
 
 protocol EntryViewDelegate: NSObjectProtocol {
-    func onButtonAction(action: EntryView.Action, channelName: String)
+    func onButtonAction(action: EntryView.Action, channelName: String, graphId: String)
     func onVocsBtnValueChange(value: Bool)
 }
 
 class EntryView: UIView {
     weak var delegate: EntryViewDelegate?
+    private let kGraphId: String = "io.agora.graph.v1"
     
     let joinHostButton: UIButton = {
         let button = UIButton()
@@ -37,9 +38,16 @@ class EntryView: UIView {
         return button
     }()
     
-    let textField: UITextField = {
+    let roomIdTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter Room ID"
+        textField.borderStyle = .roundedRect
+        return textField
+    }()
+    
+    let graphIdTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Enter Graph ID"
         textField.borderStyle = .roundedRect
         return textField
     }()
@@ -61,14 +69,16 @@ class EntryView: UIView {
     private func setupUI() {
         addSubview(joinHostButton)
         addSubview(joinAudienceButton)
-        addSubview(textField)
+        addSubview(roomIdTextField)
+        addSubview(graphIdTextField)
         addSubview(settingLabel)
         addSubview(vocsSwitchButton)
         addSubview(vocsLabel)
         
         vocsLabel.text = "use staging in rtc"
         
-        textField.translatesAutoresizingMaskIntoConstraints = false
+        roomIdTextField.translatesAutoresizingMaskIntoConstraints = false
+        graphIdTextField.translatesAutoresizingMaskIntoConstraints = false
         joinHostButton.translatesAutoresizingMaskIntoConstraints = false
         joinAudienceButton.translatesAutoresizingMaskIntoConstraints = false
         settingLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -76,17 +86,22 @@ class EntryView: UIView {
         vocsLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: topAnchor, constant: 100),
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            textField.heightAnchor.constraint(equalToConstant: 40),
+            roomIdTextField.topAnchor.constraint(equalTo: topAnchor, constant: 100),
+            roomIdTextField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            roomIdTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            roomIdTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            joinHostButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 20),
+            graphIdTextField.topAnchor.constraint(equalTo: roomIdTextField.bottomAnchor, constant: 15),
+            graphIdTextField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            graphIdTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            graphIdTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            joinHostButton.topAnchor.constraint(equalTo: graphIdTextField.bottomAnchor, constant: 20),
             joinHostButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             joinHostButton.trailingAnchor.constraint(equalTo: centerXAnchor, constant: -10),
             joinHostButton.heightAnchor.constraint(equalToConstant: 100),
             
-            joinAudienceButton.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 20),
+            joinAudienceButton.topAnchor.constraint(equalTo: graphIdTextField.bottomAnchor, constant: 20),
             joinAudienceButton.leadingAnchor.constraint(equalTo: centerXAnchor, constant: 10),
             joinAudienceButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             joinAudienceButton.heightAnchor.constraint(equalToConstant: 100),
@@ -103,18 +118,21 @@ class EntryView: UIView {
     }
 
     private func commonInit() {
-        textField.text = "\(Int.random(in: 0...100))"
+        roomIdTextField.text = "\(Int.random(in: 0...100))"
+        graphIdTextField.text = UserDefaults.standard.string(forKey: kGraphId) ?? ""
         joinHostButton.addTarget(self, action: #selector(onButton(_:)), for: .touchUpInside)
         joinAudienceButton.addTarget(self, action: #selector(onButton(_:)), for: .touchUpInside)
         vocsSwitchButton.addTarget(self, action: #selector(onSwitch(_:)), for: .valueChanged)
     }
     
     @objc private func onButton(_ sender: UIButton) {
-        guard let channelName = textField.text, !channelName.isEmpty else {
+        guard let channelName = roomIdTextField.text, !channelName.isEmpty else {
             return
         }
+        let graphId = graphIdTextField.text ?? ""
+        UserDefaults.standard.set(graphId, forKey: kGraphId)
         let action: Action = sender == joinHostButton ? .joinHost : .joinAudience
-        delegate?.onButtonAction(action: action, channelName: channelName)
+        delegate?.onButtonAction(action: action, channelName: channelName, graphId: graphId)
     }
     
     @objc func onSwitch(_ sender: UISwitch) {

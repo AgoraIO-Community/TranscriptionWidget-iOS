@@ -81,10 +81,10 @@ extension EntryVC: EntryViewDelegate, SettingVCDelegate {
         AppConfig.share.useVoscStagging = value
     }
     
-    func onButtonAction(action: EntryView.Action, channelName: String) {
+    func onButtonAction(action: EntryView.Action, channelName: String, graphId: String) {
         let isHost = action == .joinHost
         let uid: UInt = action == .joinHost ? 1 : 999
-        let config = MainVC.Config(isHost: isHost, uid: uid, channelId: channelName)
+        let config = MainVC.Config(isHost: isHost, uid: uid, channelId: channelName, graphId: graphId)
         let vc = MainVC()
         vc.config = config
         navigationController?.pushViewController(vc, animated: true)

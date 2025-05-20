@@ -93,7 +93,7 @@ extension MainVC: MainViewDelegate {
 extension MainVC: RtcManagerDelegate {
     func rtcManagerOnJoinedChannel(_ manager: RtcManager) {
         SVProgressHUD.show(withStatus: "startting rtt...")
-        rttManager.requestStartRttRecognize(channelId: config.channelId)
+        rttManager.requestStartRttRecognize(channelId: config.channelId, graphId: config.graphId)
     }
     
     func rtcManager(_ manager: RtcManager,
