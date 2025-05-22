@@ -11,6 +11,8 @@ class AppConfig {
     static let share = AppConfig()
     
     var serverEnv: ServerEnv!
+    let pubBotUid = "999"
+    let subBotUid = "998"
     var useVoscStagging = false { didSet{ saveUseVoscStagging() } }
     
     var transcriptLangs: [AgoraLanguage] = [.chinese]
@@ -55,6 +57,7 @@ class AppConfig {
                     "testIp": serverEnv!.testIp,
                     "testPort": serverEnv!.testPort,
                     "appId": serverEnv!.appId,
+                    "certificate": serverEnv!.certificate ?? "",
                     "auth": serverEnv!.auth ?? ""] as [String : Any]
         UserDefaults.standard.set(dict, forKey: "serverEnv")
     }
@@ -68,6 +71,7 @@ class AppConfig {
             let testIp = dict["testIp"] as! String
             let testPort = dict["testPort"] as! UInt
             let appId = dict["appId"] as! String
+            let certificate = dict["certificate"] as? String
             let auth = dict["auth"] as? String
             let useFinalTagAsParagraphDistinction = (dict["useFinalTagAsParagraphDistinction"] as? Bool) ?? false
             serverEnv = ServerEnv(name: name,
@@ -76,6 +80,7 @@ class AppConfig {
                                   testIp: testIp,
                                   testPort: testPort,
                                   appId: appId,
+                                  certificate: certificate,
                                   auth: auth,
                                   useFinalTagAsParagraphDistinction: useFinalTagAsParagraphDistinction)
             return
@@ -98,6 +103,7 @@ class ServerEnv: Codable {
     var testIp: String
     var testPort: UInt
     var appId: String
+    var certificate: String?
     var auth: String?
     var useFinalTagAsParagraphDistinction: Bool
     
@@ -107,6 +113,7 @@ class ServerEnv: Codable {
          testIp: String,
          testPort: UInt,
          appId: String,
+         certificate: String? = nil,
          auth: String?,
          useFinalTagAsParagraphDistinction: Bool) {
         self.name = name
@@ -115,6 +122,7 @@ class ServerEnv: Codable {
         self.testIp = testIp
         self.testPort = testPort
         self.appId = appId
+        self.certificate = certificate
         self.auth = auth
         self.useFinalTagAsParagraphDistinction = useFinalTagAsParagraphDistinction
     }
@@ -126,6 +134,7 @@ class ServerEnv: Codable {
                          testIp: testIp,
                          testPort: testPort,
                          appId: appId,
+                         certificate: certificate,
                          auth: auth,
                          useFinalTagAsParagraphDistinction: useFinalTagAsParagraphDistinction)
     }

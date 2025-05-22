@@ -80,7 +80,11 @@ class TranscriptInfo {
     var sentenceEndIndex: Int32 = 0
     
     var paragraphEnd: Bool {
-        return sentenceEndIndex >= 0
+        if sentenceEndIndex == 0 {
+            return (words.first?.isFinal == true)
+        } else {
+            return sentenceEndIndex >= 0
+        }
     }
 }
 

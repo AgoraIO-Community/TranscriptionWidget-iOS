@@ -17,6 +17,29 @@ struct RtcConfig {
     let channelName: String
     let subBotUid: String
     let pubBotUid: String
+    let pubBotToken: String?
+}
+
+fileprivate func removeNilValues(from value: Any?) -> Any? {
+    guard let value = value else { return nil }
+    if let dict = value as? [String: Any?] {
+        var result: [String: Any] = [:]
+        for (key, val) in dict {
+            if let processedVal = removeNilValues(from: val) {
+                result[key] = processedVal
+            }
+        }
+        return result.isEmpty ? nil : result
+    }
+    if let array = value as? [[String: Any?]] {
+        let processedArray = array.compactMap { removeNilValues(from: $0) as? [String: Any] }
+        return processedArray.isEmpty ? nil : processedArray
+    }
+    if let array = value as? [Any?] {
+        let processedArray = array.compactMap { removeNilValues(from: $0) }
+        return processedArray.isEmpty ? nil : processedArray
+    }
+    return value
 }
 
 // MARK: - HttpClient6x
@@ -88,7 +111,7 @@ class HttpClient6_x: NSObject {
         let urlString = baseUrl + "/projects/" + appId + "/rtsc/speech-to-text/tasks" + "?builderToken=" + token
         let url = URL(string: urlString)!
         
-        let bodyDict: [String: Any] = [
+        var bodyDict: [String: Any] = [
             /// 需要识别的转录语种，最多支持两种语言
             "languages": targetTranscribeLanguages,
             "translateConfig": [
@@ -104,9 +127,11 @@ class HttpClient6_x: NSObject {
             "rtcConfig": [
                 "channelName": rtcConfig.channelName,
                 "subBotUid": rtcConfig.subBotUid,
-                "pubBotUid": rtcConfig.pubBotUid
+                "pubBotUid": rtcConfig.pubBotUid,
+                "pubBotToken": rtcConfig.pubBotToken
             ]
         ]
+        bodyDict = removeNilValues(from: bodyDict) as? [String: Any] ?? [:]
         let jsonBody = try! JSONSerialization.data(withJSONObject: bodyDict, options: [])
         
         var request = URLRequest(url: url)
@@ -199,7 +224,7 @@ class HttpClient7_x: NSObject {
         let urlString = baseUrl + "/api/speech-to-text/v1/projects/" + appId + "/join"
         let url = URL(string: urlString)!
         
-        let bodyDict: [String: Any?] = [
+        var bodyDict: [String: Any?] = [
             "graph_id": graphId.isEmpty ? nil : graphId,
             /// 需要识别的转录语种，最多支持两种语言
             "languages": targetTranscribeLanguages,
@@ -217,9 +242,11 @@ class HttpClient7_x: NSObject {
             "rtcConfig": [
                 "channelName": rtcConfig.channelName,
                 "subBotUid": rtcConfig.subBotUid,
-                "pubBotUid": rtcConfig.pubBotUid
+                "pubBotUid": rtcConfig.pubBotUid,
+                "pubBotToken": rtcConfig.pubBotToken
             ]
         ]
+        bodyDict = removeNilValues(from: bodyDict) as? [String: Any] ?? [:]
         let jsonBody = try! JSONSerialization.data(withJSONObject: bodyDict, options: [])
         
         var request = URLRequest(url: url)
@@ -280,6 +307,60 @@ class HttpClient7_x: NSObject {
             } else if let data = data {
                 Log.info(text: "Response to leave: \(String(data: data, encoding: .utf8) ?? "")", tag: "curl")
                 completed(nil)
+            }
+        }
+        task.resume()
+    }
+}
+
+// MARK: - Token
+class TokenClient: NSObject {
+    typealias TokenCompletedBlock = (_ token: String?, _ errorMsg: String?) -> Void
+    static let baseUrl: String = "https://service.shengwang.cn/toolbox/"
+    
+    static func fetchToken(appId: String,
+                           appCertificate: String,
+                           channelName: String,
+                           uid: String,
+                           expire: Int = 24 * 60 * 60,
+                           completed: @escaping TokenCompletedBlock) {
+        let url = baseUrl + "v2/token/generate"
+        let params: [String: Any] = [
+            "appCertificate": appCertificate,
+            "appId": appId,
+            "channelName": channelName,
+            "expire": expire,
+            "src": "iOS",
+            "ts": 0,
+            "types": [1], // 1: rtc token
+            "uid": uid
+        ]
+        var request = URLRequest(url: URL(string: url)!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.timeoutInterval = 30
+        let session = URLSession.shared
+        let task = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                completed(nil, error.localizedDescription)
+            } else if let data = data {
+                let respDict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                let dataDict = respDict?["data"] as? [String: Any]
+                let token = dataDict?["token"] as? String
+                if let token = token {
+                    DispatchQueue.main.async {
+                        completed(token, nil)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completed(nil, "No token in response")
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    completed(nil, "Unknown error")
+                }
             }
         }
         task.resume()

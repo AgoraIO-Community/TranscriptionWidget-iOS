@@ -62,7 +62,7 @@ class MainVC: UIViewController {
             rtcManager.joinChannel(channelId: config.channelId,
                                    uid: config.uid,
                                    isHost: config.isHost,
-                                   token: nil)
+                                   token: config.token)
             SVProgressHUD.show(withStatus: "joining channel...")
         }
     }
@@ -93,7 +93,7 @@ extension MainVC: MainViewDelegate {
 extension MainVC: RtcManagerDelegate {
     func rtcManagerOnJoinedChannel(_ manager: RtcManager) {
         SVProgressHUD.show(withStatus: "startting rtt...")
-        rttManager.requestStartRttRecognize(channelId: config.channelId, graphId: config.graphId)
+        rttManager.requestStartRttRecognize(channelId: config.channelId, graphId: config.graphId, pubBotToken: config.pubBotToken)
     }
     
     func rtcManager(_ manager: RtcManager,

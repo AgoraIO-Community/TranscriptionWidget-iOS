@@ -17,7 +17,7 @@ class RttManager: NSObject {
     private let logTag = "RttManager"
     weak var delegate: RttManagerDelegate?
     
-    func requestStartRttRecognize(channelId: String, graphId: String) {
+    func requestStartRttRecognize(channelId: String, graphId: String, pubBotToken: String?) {
         Log.debug(text: "current env: \(AppConfig.share.serverEnv.name)", tag: logTag)
         if AppConfig.share.serverEnv.apiVersion == .api7_x {
             let testInfo: TestServerInfo? = AppConfig.share.serverEnv.testIp.isEmpty ? nil : TestServerInfo(ip: AppConfig.share.serverEnv.testIp, port: UInt(AppConfig.share.serverEnv.testPort))
@@ -25,8 +25,9 @@ class RttManager: NSObject {
             let sourceTranslateLanguage = targetTranscribeLanguages.first!
             let targetTranslateLanguages = AppConfig.share.translateLangs.map({ $0.rawValue })
             let rtcConfig = RtcConfig(channelName: channelId,
-                                      subBotUid: "998",
-                                      pubBotUid: "999")
+                                      subBotUid: AppConfig.share.subBotUid,
+                                      pubBotUid: AppConfig.share.pubBotUid,
+                                      pubBotToken: pubBotToken)
             HttpClient7_x.join(appId: AppConfig.share.serverEnv.appId,
                                 auth: AppConfig.share.serverEnv.auth,
                                 baseUrl: AppConfig.share.serverEnv.serverUrlString,
@@ -69,8 +70,9 @@ class RttManager: NSObject {
                 }
                 
                 let rtcConfig = RtcConfig(channelName: channelId,
-                                          subBotUid: "998",
-                                          pubBotUid: "999")
+                                          subBotUid: AppConfig.share.subBotUid,
+                                          pubBotUid: AppConfig.share.pubBotUid,
+                                          pubBotToken: pubBotToken)
                 HttpClient6_x.start(appId: AppConfig.share.serverEnv.appId,
                                     auth: AppConfig.share.serverEnv.auth,
                                     baseUrl: AppConfig.share.serverEnv.serverUrlString,

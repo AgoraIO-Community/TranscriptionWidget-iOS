@@ -11,7 +11,7 @@ extension TranscriptSubtitleMachine { /** handle message for Paragraph **/
     
     func _handleTranscriptPostProcess(message: ProtobufDeserializer.DataStreamMessage, uid: UidType) {
         var intermediateInfos = intermediateInfoCache.getAllInfo(uid: uid)
-        if let lastOne = intermediateInfos.last, lastOne.transcriptInfo.sentenceEndIndex < 0 { /** append **/
+        if let lastOne = intermediateInfos.last, lastOne.transcriptInfo.paragraphEnd == false { /** append **/
             let infos = infoCache.getAllInfo(uid: uid)
             let willMergeInfos = TranscriptSubtitleMachine.searchLastTranscriptMergeInfos(infos: infos)
             lastOne.transcriptInfo.words = willMergeInfos.map({ $0.transcriptInfo.words }).flatMap({ $0 })

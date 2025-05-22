@@ -13,5 +13,7 @@ extension MainVC {
         let uid: UInt
         let channelId: String
         let graphId: String
+        let token: String?
+        let pubBotToken: String?
     }
 }

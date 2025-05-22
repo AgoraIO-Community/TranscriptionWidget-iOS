@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftUI
+import SVProgressHUD
 
 class EntryVC: UIViewController {
     let entryView = EntryView()
@@ -75,7 +76,6 @@ class EntryVC: UIViewController {
         entryView.vocsSwitchButton.isOn = AppConfig.share.useVoscStagging
     }
 }
-
 extension EntryVC: EntryViewDelegate, SettingVCDelegate {
     func onVocsBtnValueChange(value: Bool) {
         AppConfig.share.useVoscStagging = value
@@ -84,10 +84,40 @@ extension EntryVC: EntryViewDelegate, SettingVCDelegate {
     func onButtonAction(action: EntryView.Action, channelName: String, graphId: String) {
         let isHost = action == .joinHost
         let uid: UInt = action == .joinHost ? 1 : 999
-        let config = MainVC.Config(isHost: isHost, uid: uid, channelId: channelName, graphId: graphId)
-        let vc = MainVC()
-        vc.config = config
-        navigationController?.pushViewController(vc, animated: true)
+        // if certificate is nil, get token
+        if let certificate = AppConfig.share.serverEnv.certificate, certificate.count > 0 {
+            SVProgressHUD.show(withStatus: "Getting token...")
+            TokenClient.fetchToken(appId: AppConfig.share.serverEnv.appId,
+                                   appCertificate: certificate,
+                                   channelName: channelName,
+                                   uid: "\(uid)") { userToken, error in
+                if let userToken = userToken {
+                    // fetch pubBot token
+                    TokenClient.fetchToken(appId: AppConfig.share.serverEnv.appId,
+                                           appCertificate: certificate,
+                                           channelName: channelName,
+                                           uid: AppConfig.share.pubBotUid) { pubBotToken, error in
+                        SVProgressHUD.dismiss()
+                        if let pubBotToken = pubBotToken {
+                            let config = MainVC.Config(isHost: isHost, uid: uid, channelId: channelName, graphId: graphId, token: userToken, pubBotToken: pubBotToken)
+                            let vc = MainVC()
+                            vc.config = config
+                            self.navigationController?.pushViewController(vc, animated: true)
+                        } else {
+                            SVProgressHUD.showError(withStatus: "Get pubBot token failed")
+                        }
+                    }
+                } else {
+                    SVProgressHUD.dismiss()
+                    SVProgressHUD.showError(withStatus: "Get user token failed")
+                }
+            }
+        } else {
+            let config = MainVC.Config(isHost: isHost, uid: uid, channelId: channelName, graphId: graphId, token: nil, pubBotToken: nil)
+            let vc = MainVC()
+            vc.config = config
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     func settingVCDidCompleted(appConfig: AppConfig) {
