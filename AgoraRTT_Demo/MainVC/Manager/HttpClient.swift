@@ -228,7 +228,7 @@ class HttpClient7_x: NSObject {
             "graph_id": graphId.isEmpty ? nil : graphId,
             /// 需要识别的转录语种，最多支持两种语言
             "languages": targetTranscribeLanguages,
-            "name": "agora-test",
+            "name": rtcConfig.channelName,
             "translateConfig": [
                 "languages": [
                     [
